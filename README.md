@@ -1,2 +1,2 @@
 # Usaco
-My Usaco Submissions
+My usaco submissions.
