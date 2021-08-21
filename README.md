@@ -1,4 +1,4 @@
 # Usaco
-My usaco submissions.
+My usaco stuff.
 
-**USACO SILVER MEETINGS
+> https://github.com/TruaShamu/Usaco/tree/main/Usaco-Training-Page-Solutions-main (Training Pages)
