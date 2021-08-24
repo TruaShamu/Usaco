@@ -4,7 +4,7 @@ import java.util.Comparator;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-public class Main {
+public class stampede {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader("stampede.in"));
         PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("stampede.out")));
