@@ -1,0 +1,3 @@
+1. A cow is unbalanced if number of taller cows on left and right differ by a factor of 2.
+2. Basically we just sort the input (descending) and put it in a BIT.'
+3. Then for each cow, we use the BIT to look up how many cows are taller on each side. If it differs by more than a factor of 2, answer++
