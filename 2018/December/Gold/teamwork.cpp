@@ -31,18 +31,24 @@ int main() {
 	for (int i = 0; i < N; i++) {
 		cin >> A[i];
 	}
-	
+
 	for (int r = 1; r < N; r++) {
 		int maxVal = A[r];
 		for (int l = r; l >= 0 && (r + 1 - l) <= K; l--) {
+			// Keep a track of the maximum value between L and R.
 			maxVal = max(maxVal, A[l]);
 			if (l == 0) {
+				// Team from (0 to R)
 				dp[r] = max(dp[r], maxVal * (r + 1 - l));
 			}
-			else dp[r] = max(dp[r], dp[l - 1] + maxVal * (r + 1 - l));
+			else {
+				// Team from (L to R)
+				dp[r] = max(dp[r], dp[l - 1] + maxVal * (r + 1 - l));
+			}
 		}
 	}
 	cout << dp[N - 1] << "\n";
 
 
 }
+
