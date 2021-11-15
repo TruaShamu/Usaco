@@ -1,73 +1,168 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.StringTokenizer;
+import java.util.*;
 
-public class problem2 {
-    public static int[][] cum;
+public class problem3 {
+    public static ArrayList<Integer>[] killed, killed2;
+    public static boolean[] visited;
+
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
-        //Read in each point.
-        point[] points = new point[N];
-        for (int i = 0; i < N; i++) {
+        int cows = Integer.parseInt(br.readLine());
+        ArrayList<point> east = new ArrayList<>();
+        ArrayList<point> north = new ArrayList<>();
+        for (int i = 0; i < cows; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
+            char dir = st.nextToken().charAt(0);
             int x = Integer.parseInt(st.nextToken());
             int y = Integer.parseInt(st.nextToken());
-            points[i] = new point(x, y);
-        }
-        Arrays.sort(points);
-
-        cum = new int[5001][5001];
-        for (point oPoint : points) {
-            cum[oPoint.x + 1][oPoint.y + 1]++;
-        }
-
-        for (int i = 1; i < (N + 1); i++) {
-            for (int j = 1; j < (N + 1); j++) {
-                cum[i][j] += cum[i - 1][j] + cum[i][j - 1] - cum[i - 1][j - 1];
+            if (dir == 'E') {
+                east.add(new point(x, y, i));
+            }
+            if (dir == 'N') {
+                north.add(new point(x, y, i));
             }
         }
 
-        long ans = 1;
-        for (int i = 0; i < N; i++) {
-            for (int j = i; j < N; j++) {
-                int hi = Integer.max(points[i].y, points[j].y);
-                int lo = Integer.min(points[i].y, points[j].y);
-                ans += get_sum(i, j, hi, N - 1) * get_sum(i, j, 0, lo);
+        //Sort east desc
+        Collections.sort(east, new xDesc());
+
+        //Sort north
+        Collections.sort(north);
+        ArrayList<killing> killings = new ArrayList<>();
+        for (int i = 0; i < east.size(); i++) {
+            for (int j = 0; j < north.size(); j++) {
+                point East = east.get(i);
+                point North = north.get(j);
+
+                //No need to process
+                if (East.x > North.x) {
+                    continue;
+                }
+
+
+                int meetCoordX = North.x;
+                int meetCoordY = East.y;
+                int distanceX = meetCoordX - East.x;
+                int distanceY = meetCoordY - North.y;
+                if (distanceX != distanceY && distanceX >= 0 && distanceY >= 0) {
+                    if (distanceX < distanceY) {
+
+                        killings.add(new killing(meetCoordX, meetCoordY, distanceY, distanceX, North.idx, East.idx));
+                    } else {
+                        killings.add(new killing(meetCoordX, meetCoordY, distanceX, distanceY, East.idx, North.idx));
+                    }
+                }
+
             }
         }
-        System.out.println("ANSWER: " + ans);
+        Collections.sort(killings);
+        int[] answer = new int[cows];
+        visited = new boolean[cows];
+        Arrays.fill(visited, false);
+
+        killed = new ArrayList[cows];
+        killed2 = new ArrayList[cows];
+        for (int i = 0; i < cows; i++) {
+            killed[i] = new ArrayList<>();
+        }
+
+        Arrays.fill(answer, -1);
+        for (killing oEvent : killings) {
+            if ((answer[oEvent.kill] == -1 || (answer[oEvent.kill] > oEvent.killTime)) && answer[oEvent.dead] == -1) {
+                answer[oEvent.dead] = oEvent.deadTime;
+                killed[oEvent.kill].add(oEvent.dead);
+            }
+        }
+
+
+        //Copy of
+        for (int i = 0; i < cows; i++) {
+            killed2[i] = new ArrayList<>(killed[i]);
+        }
+
+
+        for (int i = 0; i < cows; i++) {
+            dfs(i);
+        }
+
+
+        for (int i = 0; i < cows; i++) {
+            System.out.println(killed2[i].size());
+        }
+
 
     }
 
-    public static int get_sum(int xLeft, int xRight, int yLeft, int yRight) {
-        ++xRight;
-        ++yRight;
-        return cum[xRight][yRight] - cum[xLeft][yRight] - cum[xRight][yLeft] + cum[xLeft][yLeft];
+
+    public static void dfs(int node) {
+        if (!visited[node]) {
+            //Visit all it's killed
+            for (int child : killed[node]) {
+                dfs(child);
+            }
+
+            for (int child : killed[node]) {
+                for (int childOfChild : killed2[child]) {
+                    killed2[node].add(childOfChild);
+                }
+            }
+            visited[node] = true;
+        }
+
+
     }
+
 
     static class point implements Comparable<point> {
         public int x;
         public int y;
+        public int idx;
 
-        public point(int x, int y) {
+        public point(int x, int y, int idx) {
             this.x = x;
             this.y = y;
+            this.idx = idx;
         }
 
+        //Sort x ascending
         public int compareTo(point other) {
-            if (this.x != other.x) {
-                return Integer.compare(this.x, other.x);
-            }
-            return Integer.compare(this.y, other.y);
+            return Integer.compare(this.x, other.x);
         }
 
-        public String toString() {
-            return "(" + x + ", " + y + ")";
+    }
+
+    static class xDesc implements Comparator<point> {
+        public int compare(point a, point b) {
+            return Integer.compare(b.x, a.x);
         }
     }
+
+    static class killing implements Comparable<killing> {
+        public int x, y;
+        public int deadTime, killTime;
+        public int dead, kill;
+
+
+        public killing(int x, int y, int deadTime, int killTime, int dead, int kill) {
+            this.x = x;
+            this.y = y;
+            this.dead = dead;
+            this.deadTime = deadTime;
+            this.killTime = killTime;
+            this.kill = kill;
+        }
+
+        //Sort x ascending
+        public int compareTo(killing other) {
+            return Integer.compare(this.deadTime, other.deadTime);
+        }
+
+
+    }
+
+
 }
 
