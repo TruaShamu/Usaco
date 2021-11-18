@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.StringTokenizer;
 
+
 public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader("lostcow.in"));
@@ -9,33 +10,34 @@ public class Main {
         int x = Integer.parseInt(st.nextToken());
         int y = Integer.parseInt(st.nextToken());
         int distance = y - x;
-        int steps = findSteps(distance);
+        int steps = log(distance);
+        System.out.println("STEPS:" + steps);
+        int answer = 0;
 
-        int totalTravel = 0;
         for (int i = 0; i < steps - 1; i++) {
-            totalTravel += 2 * Math.pow(2, i);
-
+            answer += 2 * Math.pow(2, i);
+            // System.out.println("ANS:" + answer);
         }
-        totalTravel += Math.abs(distance);
-       pw.println(totalTravel);
+        answer += Math.abs(y - x);
+        pw.println(answer);
         pw.close();
+
 
     }
 
-    public static int findSteps(int distance) {
-        for (int steps = 0; ; steps++) {
-            int dist = (int) Math.pow(-2, steps);
-            if (distance < 0) {
-                if (dist <= distance) {
-                    return steps + 1;
+    public static int log(int x) {
+
+        for (int i = 0; ; i++) {
+            int power = (int) Math.pow(-2, i);
+            if (power > 0 && x > 0) {
+                if (power >= x) {
+                    return i + 1;
                 }
-            }
-            if (distance > 0) {
-                if (dist >= distance) {
-                    return steps + 1;
+            } else {
+                if (power <= x & x < 0) {
+                    return i + 1;
                 }
             }
         }
-
     }
 }
